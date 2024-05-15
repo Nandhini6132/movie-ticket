@@ -39,10 +39,10 @@ const MovieListing = ({user, handleLogin}) => {
   const [drawer, setDrawer] = useState(false);
 
   const dispatch = useDispatch();
-  const selector = useSelector((state) => state.allMovie.movie).slice(0, 5);
+  const selector = useSelector((state) => state.allMovie.movie).slice(0, 6);
   const upcomingSelector = useSelector(
     (state) => state.allMovie.upcomingMovie
-  ).slice(0, 5);
+  ).slice(0, 6);
 
   const selectorToPlayVideo = useSelector((state) => state.allMovie.playVideo);
   const singleMovieSelector = useSelector(
