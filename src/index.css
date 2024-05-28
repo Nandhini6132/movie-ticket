@@ -40,7 +40,7 @@
     background-color: #ffc107;
     /* color: white !important; */
 }
-button[disabled]{
+.ticket button[disabled]{
     background-color: #0532ffc9;
     color: white !important;
     cursor:not-allowed

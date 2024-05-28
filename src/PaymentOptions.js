@@ -16,13 +16,9 @@ import ListItemText from "@mui/material/ListItemText";
 
 import { useNavigate } from "react-router-dom";
 
+import PaymentIcon from "@mui/icons-material/Payment";
 
-
-
-
-import PaymentIcon from '@mui/icons-material/Payment';
-
-const drawerWidth = 340
+const drawerWidth = 340;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -44,10 +40,6 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
-
-
-
-
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -76,15 +68,12 @@ const sidebar = [
         navigate: "/upiPage",
         icon: PaymentIcon,
       },
-     
     ],
   },
-
 ];
 
-
 function PaymentOptions({ setDark, children, themes }) {
-  console.log(setDark)
+  console.log(setDark);
 
   const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
@@ -93,45 +82,37 @@ function PaymentOptions({ setDark, children, themes }) {
     setOpen(true);
   };
 
-
   const [anchorEl, setAnchorEl] = React.useState(null);
-//   const opens = Boolean(anchorEl);
-//   const handleClick = (event) => {
-//     setAnchorEl(event.currentTarget);
-//   };
-//   const handleClose = () => {
-//     setAnchorEl(null);
-//   };
-//   const [activeMenu, setActiveMenu] = useState("");
+  //   const opens = Boolean(anchorEl);
+  //   const handleClick = (event) => {
+  //     setAnchorEl(event.currentTarget);
+  //   };
+  //   const handleClose = () => {
+  //     setAnchorEl(null);
+  //   };
+  //   const [activeMenu, setActiveMenu] = useState("");
 
-//   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  //   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
 
-//   const handleSubMenuToggle = () => {
-//     setIsSubMenuOpen((prev) => !prev);
-//   };
-//   const [openAccordionId, setOpenAccordionId] = useState(null);
+  //   const handleSubMenuToggle = () => {
+  //     setIsSubMenuOpen((prev) => !prev);
+  //   };
+  //   const [openAccordionId, setOpenAccordionId] = useState(null);
 
-//   const handleAccordionToggle = (accordionId) => {
-//     setOpenAccordionId(openAccordionId === accordionId ? null : accordionId);
-//   };
+  //   const handleAccordionToggle = (accordionId) => {
+  //     setOpenAccordionId(openAccordionId === accordionId ? null : accordionId);
+  //   };
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   return (
     <Box sx={{ display: "flex" }} style={themes}>
-      
-    
-
       <Drawer
         variant="permanent"
         open={open}
         className="drawer"
         // sx={{ width: "300px" }}
-        PaperProps={{ style: { maxWidth: "25%", top:'96px' } }}
+        PaperProps={{ style: { maxWidth: "25%", top: "80px" } }}
       >
-    
-
-    
-       
         <div className="drawer-content" sx={{ width: "100%" }}>
           {children}
         </div>
@@ -156,7 +137,7 @@ function PaymentOptions({ setDark, children, themes }) {
                 <div key={menuIndex}>
                   {menu.submenus ? (
                     // Use Accordion for submenus
-                 <></>
+                    <></>
                   ) : (
                     // Regular ListItem for non-submenu items
                     <ListItem
@@ -197,10 +178,11 @@ function PaymentOptions({ setDark, children, themes }) {
                           primary={menu.title}
                           sx={{ opacity: open ? 1 : 0, color: "#72849A" }}
                           style={
-                            selectedIndex === menu.id ? { color: "skyblue" } : {}
+                            selectedIndex === menu.id
+                              ? { color: "skyblue" }
+                              : {}
                           }
                         />
-                   
                       </ListItemButton>
                     </ListItem>
                   )}
@@ -209,11 +191,8 @@ function PaymentOptions({ setDark, children, themes }) {
             </div>
           ))}
         </List>
-      
       </Drawer>
- 
     </Box>
-  
   );
 }
 

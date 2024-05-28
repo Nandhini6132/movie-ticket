@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 import { Box, Typography, Grid, Divider, Stack } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchMovieToGetDetails } from "./slice/MovieSlice";
+import { fetchMovieToGetDetails, getSnack } from "./slice/MovieSlice";
 import { collection, getDocs } from "firebase/firestore";
 import { auth, db } from "./firebase/firebase";
 import { Row, Col } from "react-bootstrap";
@@ -15,18 +15,20 @@ const MovieDetailComponent = ({ value, user }) => {
     (state) => state.allMovie.bookingDetails
   );
 
+  const snackSelector= useSelector(state=>state.allMovie.overAllTotal)
   const length = showDetailsSelector.length;
   const slicedArray = showDetailsSelector.slice(length - 1, length);
+  console.log(slicedArray)
 
-  const seatInfo = slicedArray?.map((a) => a.comb)?.map((seat) => seat);
-
+  const seatInfo = slicedArray?.map((a) => a.comb);
+  console.log(seatInfo)
 
   const dispatch = useDispatch();
   const [selectedSeatByUser, setSelectedSeatByUser] = useState([]);
 
   const amt =
     slicedArray.map((a) => a?.seats) * slicedArray.map((a) => a?.amount);
- 
+
   const date = new Date();
   const todayDate = date.getDate();
   let bookingDate;
@@ -67,9 +69,53 @@ const MovieDetailComponent = ({ value, user }) => {
     checkIfDataExists();
   }, [user]);
 
+  const snackDetailsss= useSelector(state=>state.allMovie.snacksDetail)
+  const snackDetail = snackDetailsss.filter(item => item.id !== undefined);
+  console.log(snackDetail)
+  const countSnackNames = (snackDetail) => {
+    return snackDetail.reduce((acc, item) => {
+      acc[item.snackName] = (acc[item.snackName] || 0) + 1;
+      return acc;
+    }, {});
+  };
+  
 
+  const snackOutput = Object.entries(countSnackNames(snackDetail)).map(([snackName, count]) => (
+    <Stack key={snackName}>
+      {`${snackName} *${count}`}
+    </Stack>
+  ));
+
+  const countSnackNamesAndCalculateTotalPrice = (snackDetail) => {
+    return snackDetail.reduce((acc, item) => {
+      acc[item.snackName] = acc[item.snackName] || { count: 0, totalPrice: 0 };
+      
+      acc[item.snackName].count++;
+      acc[item.snackName].totalPrice += item.snackPrice || 0;
+      return acc;
+    }, {});
+  };
+  
+  const snackOutputWithTotalPrice = Object.entries(countSnackNamesAndCalculateTotalPrice(snackDetail)).map(([snackName, { count, totalPrice }]) => (
+    <Stack key={snackName}>
+      {`${totalPrice.toFixed(2)}`} 
+    </Stack>
+  ));
+ 
+  console.log(snackOutputWithTotalPrice,'.,..')
+  const add = snackDetail?.map(a=>a.snackPrice)
+  console.log(add)
+  const grandTotalPrice = add?.reduce((a,b)=>a+b, 0);
+  console.log(grandTotalPrice)
+
+  let grandTotal=grandTotalPrice
+  useEffect(()=>{
+    dispatch(getSnack({grandTotal}))
+  },[])
   return (
-    <Container sx={{boxShadow:" -1px -2px 0px #e9dfdf", height:'90vh', pt:4}}>
+    <Container
+      sx={{ boxShadow: " -1px -2px 0px #e9dfdf", height: "90vh", pt: 4 }}
+    >
       <Box>
         <Typography>Booking Summary</Typography>
         <Divider sx={{ borderColor: "black", marginBottom: "5px" }} />
@@ -100,8 +146,8 @@ const MovieDetailComponent = ({ value, user }) => {
                   <li>{selector.original_language}</li>
                 </ul>
                 <Typography variant="h6">
-                 
-                  {slicedArray?.map(a=>a.date)}, {slicedArray?.map(a=>a.time)}
+                  {slicedArray?.map((a) => a.date)},{" "}
+                  {slicedArray?.map((a) => a.time)}
                 </Typography>
                 <Typography variant="body1">
                   Colan Cinemas,{" "}
@@ -111,12 +157,12 @@ const MovieDetailComponent = ({ value, user }) => {
                   </small>
                 </Typography>
 
-                <small style={{ fontSize: "12px" }}>
+                {/* <small style={{ fontSize: "12px" }}>
                   "எங்களுக்கு வேறு எங்கும் கிளைகள் கிடையாது"{" "}
                   <strong style={{ fontSize: "16px" }}>
                     &nbsp; &nbsp; Masha allah
                   </strong>
-                </small>
+                </small> */}
               </Stack>
             </Stack>
           </Grid>
@@ -134,22 +180,28 @@ const MovieDetailComponent = ({ value, user }) => {
             <Typography variant="body2" mt={1}>
               PRIME{" "}
             </Typography>
-                  {console.log(seatInfo)}
-              {seatInfo?.length>0 ?  <Stack direction="row" spacing={2}>
-              {seatInfo.map((a, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    background: "#c29c09",
-                    padding: "10px",
-                    borderRadius: "7px",
-                    color: "white",
-                  }}
-                >
-                  {a}
-                </Box>
-              ))}
-            </Stack>:''}
+            {console.log(seatInfo[0])}
+            {seatInfo[0]!==null? (
+              <Stack direction="row" spacing={2}>
+                {seatInfo.map((a, index) => (
+                  <Stack direction='row' gap={1} flexWrap={"wrap"}
+                    key={index}
+                  
+                  >
+                    {a.map(a=>(
+                      <Stack   sx={{
+                        background: "#c29c09",
+                        padding: "6px",
+                        borderRadius: "7px",
+                        color: "white",
+                      }}>{a}</Stack>
+                    ))}
+                  </Stack>
+                ))}
+              </Stack>
+            ) : (
+              ''
+            )}
           </Grid>
         </Grid>
         <Divider
@@ -162,8 +214,8 @@ const MovieDetailComponent = ({ value, user }) => {
               TICKETS
             </Typography>
           </Grid>
-
-          <Grid item>
+             
+          <Grid item mb={3}>
             <Row>
               <Col>
                 {slicedArray.map((a) => a?.seats)}*
@@ -172,20 +224,29 @@ const MovieDetailComponent = ({ value, user }) => {
               <Col style={{ textAlign: "end" }}> &#8377;{amt}.00</Col>
             </Row>
           </Grid>
+          {snackDetail&&(
+                <>
+                <Typography variant="body2" sx={{ color: "grey" }}>SNACKS</Typography>
+                  <Row>
+                   <Col>{snackOutput}</Col>
+                   <Col style={{ textAlign: "end" }}>{snackOutputWithTotalPrice}</Col>
+                  </Row>
 
-          <Grid item mt={4} mb={7}>
+                </>
+              )}
+          <Grid item mt={0} mb={0}>
             <Typography variant="body2" sx={{ color: "grey" }}>
               PAYMENT DETAILS
             </Typography>
             <Row>
               <Col>SubTotal</Col>
-              <Col style={{ textAlign: "end" }}> &#8377;{amt}.00</Col>
+              <Col style={{ textAlign: "end" }}> &#8377;{amt + snackSelector}.00</Col>
             </Row>
 
             <Row>
               <Col>Taxes and fees</Col>
               <Col style={{ textAlign: "end" }}>
-                &#8377;{Math.floor(tax * slicedArray.map((a) => a?.seats))}.00
+                &#8377;{((tax) * (slicedArray.map((a) => a?.seats))).toFixed(2)}
               </Col>
             </Row>
           </Grid>
@@ -204,7 +265,7 @@ const MovieDetailComponent = ({ value, user }) => {
               <Col>GRAND TOTAL</Col>
               <Col style={{ textAlign: "end" }}>
                 {" "}
-                &#8377;{amt + tax * slicedArray.map((a) => a?.seats)}
+                &#8377;{amt+grandTotalPrice + tax * slicedArray.map((a) => a?.seats)}
               </Col>
             </Row>
           </Grid>

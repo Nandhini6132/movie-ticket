@@ -157,21 +157,19 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = dateObj.toLocaleDateString("en-US", options);
 
-
-
-
   const showTime = ["07:10 AM", "11:00 AM", "02:00 PM", "06:00 PM"];
-  
+
   const getCurrentTime = () => {
     const currentDate = new Date();
     const hours = currentDate.getHours();
     const minutes = currentDate.getMinutes();
-    const currentTime = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+    const currentTime = `${hours < 10 ? "0" + hours : hours}:${
+      minutes < 10 ? "0" + minutes : minutes
+    }`;
     return currentTime;
   };
-  
-  const isTimePast = (currentTime, showTime) => {
 
+  const isTimePast = (currentTime, showTime) => {
     const [showHours, showMinutes, showPeriod] = showTime.split(/:| /);
     let hours = parseInt(showHours, 10);
     if (showPeriod === "PM" && hours !== 12) {
@@ -179,12 +177,11 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
     } else if (showPeriod === "AM" && hours === 12) {
       hours = 0;
     }
-    const showTime24 = `${hours < 10 ? '0' + hours : hours}:${showMinutes}`;
-  
-   
+    const showTime24 = `${hours < 10 ? "0" + hours : hours}:${showMinutes}`;
+
     return currentTime > showTime24;
   };
-  
+
   const currentTime = getCurrentTime();
   return (
     <>
@@ -306,18 +303,27 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
             </Tabs>
           </Box>
 
-          <CustomTabPanel
-            value={value}
-            index={0}
-   
-          >
-            <Stack direction="row" gap={4} sx={{ cursor: "pointer", background: "white",
-               margin: "5rem 10rem",
-               borderRadius: "18px",
-               padding: "5rem 3rem"}}>
+          <CustomTabPanel value={value} index={0}>
+            <Stack
+              direction="row"
+              gap={4}
+              sx={{
+                cursor: "pointer",
+                background: "white",
+                margin: "5rem 10rem",
+                borderRadius: "18px",
+                padding: "5rem 3rem",
+              }}
+            >
               {showTime.map((time) => (
                 <>
-                  <Link to={isTimePast(currentTime, time) ? "#" : `/moviesessions/${id}/ticket/${time}`}>
+                  <Link
+                    to={
+                      isTimePast(currentTime, time)
+                        ? "#"
+                        : `/moviesessions/${id}/ticket/${time}`
+                    }
+                  >
                     {" "}
                     <TextField
                       id="outlined-read-only-input"
@@ -330,9 +336,15 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
                       sx={{
                         width: "100px",
                         input: {
-                          cursor: isTimePast(currentTime, time) ? "not-allowed" : "pointer",
-                          background: isTimePast(currentTime, time) ? "#f5f5f5" : "#346ec22b",
-                          pointerEvents: isTimePast(currentTime, time) ? 'none' : 'auto',
+                          cursor: isTimePast(currentTime, time)
+                            ? "not-allowed"
+                            : "pointer",
+                          background: isTimePast(currentTime, time)
+                            ? "#f5f5f5"
+                            : "#346ec22b",
+                          pointerEvents: isTimePast(currentTime, time)
+                            ? "none"
+                            : "auto",
                         },
                       }}
                     />
@@ -342,10 +354,17 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
             </Stack>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <Stack direction="row" gap={4} sx={{ cursor: "pointer",background: "white",
-               margin: "5rem 10rem",
-               borderRadius: "18px",
-               padding: "5rem 3rem" }}>
+            <Stack
+              direction="row"
+              gap={4}
+              sx={{
+                cursor: "pointer",
+                background: "white",
+                margin: "5rem 10rem",
+                borderRadius: "18px",
+                padding: "5rem 3rem",
+              }}
+            >
               {showTime.map((time) => (
                 <>
                   <Link to={`/moviesessions/${id}/ticket/${time}`}>
@@ -371,10 +390,14 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
             <Stack
               direction="row"
               gap={4}
-              sx={{ cursor: "pointer", pl: "200px",background: "white",
-              margin: "5rem 10rem",
-              borderRadius: "18px",
-              padding: "5rem 3rem" }}
+              sx={{
+                cursor: "pointer",
+                pl: "200px",
+                background: "white",
+                margin: "5rem 10rem",
+                borderRadius: "18px",
+                padding: "5rem 3rem",
+              }}
             >
               {showTime.map((time) => (
                 <>
@@ -402,6 +425,5 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
     </>
   );
 };
-
 
 export default MovieSessions;

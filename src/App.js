@@ -9,8 +9,12 @@ import Home from "./components/home/Home";
 import MovieSessions from "./components/moviesessions/MovieSessions";
 import MovieTicket from "./components/ticket/MovieTicket";
 import { PhoneAuthProvider } from "firebase/auth";
-import UpiPage from './UpiPage'
-import { signInWithPopup, signInWithPhoneNumber, signInWithCredential } from "firebase/auth";
+import UpiPage from "./UpiPage";
+import {
+  signInWithPopup,
+  signInWithPhoneNumber,
+  signInWithCredential,
+} from "firebase/auth";
 import { auth, provider } from "./firebase/firebase";
 import Booking from "./components/booking/Booking";
 import Profile from "./components/profile/Profile";
@@ -18,6 +22,7 @@ import PersonalDetail from "./components/profile/PersonalDetail";
 import MyBookings from "./components/profile/MyBookings";
 import { useDispatch } from "react-redux";
 import { fetchCastAndCrew, fetchMovieToGetDetails } from "./slice/MovieSlice";
+import AddSnacks from "./components/food/AddSnacks";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -25,14 +30,14 @@ function App() {
   const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [phone, setPhone] = useState();
-  const [maritalStatus, setMaritalStatus]= useState();
-  const [gender, setGender]= useState();
-  const [dob, setDob]= useState();
+  const [maritalStatus, setMaritalStatus] = useState();
+  const [gender, setGender] = useState();
+  const [dob, setDob] = useState();
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [isPaymentConfirmed, setIsPaymentConfirmed]= useState(false)
-  const [isDisabled, setIsDisabled]= useState(false)
-  const [rowNo, setRowNo]= useState([])
-  const[seatNo, setSeatNo]= useState([])
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [rowNo, setRowNo] = useState([]);
+  const [seatNo, setSeatNo] = useState([]);
   console.log(user);
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -59,33 +64,31 @@ function App() {
     setEmail(auth.currentUser?.email);
   };
   const handleVerifyPhone = async () => {
-    const phoneNumber = '+6374876300';
+    const phoneNumber = "+6374876300";
     try {
-       const verificationId = await signInWithPhoneNumber(auth, phoneNumber);
-       console.log('Phone number verification initiated');
-   
-       const otp = window.prompt('Enter OTP');
-   
-       const credential = PhoneAuthProvider.credential(verificationId, otp);
-       await signInWithCredential(auth, credential);
-   
-       console.log('Phone number verified successfully');
+      const verificationId = await signInWithPhoneNumber(auth, phoneNumber);
+      console.log("Phone number verification initiated");
+
+      const otp = window.prompt("Enter OTP");
+
+      const credential = PhoneAuthProvider.credential(verificationId, otp);
+      await signInWithCredential(auth, credential);
+
+      console.log("Phone number verified successfully");
     } catch (error) {
-       console.error('Phone authentication error:', error);
+      console.error("Phone authentication error:", error);
     }
-   };
-   const [drawer, setDrawer] = useState(false);
-   const dispatch= useDispatch()
-   const toogleOpen = async (id) => {
+  };
+  const [drawer, setDrawer] = useState(false);
+  const dispatch = useDispatch();
+  const toogleOpen = async (id) => {
     setDrawer(true);
     dispatch(fetchCastAndCrew(id));
     dispatch(fetchMovieToGetDetails(id));
-   
   };
   const toogleClose = () => {
     setDrawer(false);
   };
-  
 
   return (
     <div className="App">
@@ -96,11 +99,22 @@ function App() {
         handleLogOut={handleLogOut}
       />
       <Routes>
-        <Route path="/" index element={<Home  user={user} handleLogin={handleLogin}/>} />
+        <Route
+          path="/"
+          index
+          element={<Home user={user} handleLogin={handleLogin} />}
+        />
         <Route
           path="/moviesessions/:id"
           index
-          element={<MovieSessions handleChange={handleChange} value={value}  toogleOpen={toogleOpen} toggleClose={toogleClose}/>}
+          element={
+            <MovieSessions
+              handleChange={handleChange}
+              value={value}
+              toogleOpen={toogleOpen}
+              toggleClose={toogleClose}
+            />
+          }
         />
         <Route
           path="/moviesessions/:id/ticket/:time"
@@ -133,22 +147,41 @@ function App() {
               setDob={setDob}
               dob={dob}
               maritalStatus={maritalStatus}
-             
-              
-             
             />
           }
         />
-        <Route path="/:id/:time/booking" element={<Booking  value={value} user={user}/>} />
-        <Route path="/upiPage" element={<UpiPage selectedSeats={selectedSeats} setSelectedSeats={setSelectedSeats} user={user}  isPaymentConfirmed={isPaymentConfirmed}
-              setIsPaymentConfirmed={setIsPaymentConfirmed} isDisabled={isDisabled} setIsDisabled={setIsDisabled}  rowNo={rowNo}
+        <Route
+          path="/:id/:time/booking"
+          element={<Booking value={value} user={user} />}
+        />
+        <Route
+          path="/upiPage"
+          element={
+            <UpiPage
+              selectedSeats={selectedSeats}
+              setSelectedSeats={setSelectedSeats}
+              user={user}
+              isPaymentConfirmed={isPaymentConfirmed}
+              setIsPaymentConfirmed={setIsPaymentConfirmed}
+              isDisabled={isDisabled}
+              setIsDisabled={setIsDisabled}
+              rowNo={rowNo}
               setRowNo={setRowNo}
               seatNo={seatNo}
-              setSeatNo={setSeatNo}/>}/>
-        <Route path="/profile" element={<Profile/>}/>
-        <Route path="/personalDetail" element={<PersonalDetail handleLogOut={handleLogOut}/>}/>
-        <Route path="/personalDetail/myBooking" element={<MyBookings user={user} selectedSeats={selectedSeats}/>}/>
-      
+              setSeatNo={setSeatNo}
+            />
+          }
+        />
+        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/personalDetail"
+          element={<PersonalDetail handleLogOut={handleLogOut} />}
+        />
+        <Route
+          path="/personalDetail/myBooking"
+          element={<MyBookings user={user} selectedSeats={selectedSeats} />}
+        />
+        <Route path="/addsnacks" element={<AddSnacks/>}/>
       </Routes>
     </div>
   );

@@ -198,10 +198,9 @@ const MyBookings = ({ user, selectedSeats }) => {
                                 gap={2}
                               >
                                 {a.seat
-                                    ?.filter(
-                                      (seat) =>
-                                        !seat.includes("[object Object]")
-                                    )
+                                  ?.filter(
+                                    (seat) => !seat.includes("[object Object]")
+                                  )
                                   .map((seat, index) => (
                                     <Box
                                       padding={1.5}
@@ -231,7 +230,8 @@ const MyBookings = ({ user, selectedSeats }) => {
                               gap={2}
                               display={"flex"}
                               flexDirection={"row"}
-                              mt={3} mb={3}
+                              mt={3}
+                              mb={3}
                             >
                               <Box width={"100%"}>
                                 <Typography variant="h5">{a.title}</Typography>
@@ -261,12 +261,15 @@ const MyBookings = ({ user, selectedSeats }) => {
                                       <Box key={index}>{seat}</Box>
                                     ))}
                                 </Stack>
-                               <div style={{textAlign:'center'}}> <button
-                                  className="btn btn-danger  m-auto"
-                                  onClick={() => handleCancelTicket(a.idDoc)}
-                                >
-                                  Cancel Ticket
-                                </button></div>
+                                <div style={{ textAlign: "center" }}>
+                                  {" "}
+                                  <button
+                                    className="btn btn-danger  m-auto"
+                                    onClick={() => handleCancelTicket(a.idDoc)}
+                                  >
+                                    Cancel Ticket
+                                  </button>
+                                </div>
                               </Box>
                             </Stack>
                           </>

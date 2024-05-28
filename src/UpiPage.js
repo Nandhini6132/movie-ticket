@@ -17,8 +17,17 @@ import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "./firebase/firebase";
 import MovieTicketPdf from "./components/invoice/MovieTicketPdf";
 
-const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPaymentConfirmed, isDisabled, setIsDisabled, rowNo, seatNo }) => {
-  console.log(selectedSeats,'kklkkl');
+const UpiPage = ({
+  selectedSeats,
+  setSelectedSeats,
+  isPaymentConfirmed,
+  setIsPaymentConfirmed,
+  isDisabled,
+  setIsDisabled,
+  rowNo,
+  seatNo,
+}) => {
+  console.log(selectedSeats, "kklkkl");
   const seatInfo = selectedSeats?.filter(
     (seat) => seat.userId === auth.currentUser?.uid
   );
@@ -28,10 +37,10 @@ const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPay
   const showDetailsSelector = useSelector(
     (state) => state.allMovie.bookingDetails
   );
- 
- const length= showDetailsSelector.length
- const slicedArray = showDetailsSelector.slice(length-1, length);
-  console.log(slicedArray)
+
+  const length = showDetailsSelector.length;
+  const slicedArray = showDetailsSelector.slice(length - 1, length);
+  console.log(slicedArray);
 
   const seatId = `${fbSelector?.time}*${fbSelector?.id}*${fbSelector?.date}*seatNo${comb}`;
   const [open, setOpen] = useState(false);
@@ -39,23 +48,23 @@ const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPay
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const [modalShow, setModalShow] = React.useState(false);
-  const [fstore, setFStore]= useState()
-  const [bookingSum, setBookingSum]= useState()
-  const selector= useSelector(state=>state.allMovie)
-
+  const [fstore, setFStore] = useState();
+  const [bookingSum, setBookingSum] = useState();
+  const selector = useSelector((state) => state.allMovie);
+  const snackSelector= useSelector(state=>state.allMovie.overAllTotal)
 
   const handleClickOpen = async () => {
     setIsPaymentConfirmed(true);
     setIsDisabled(true);
     console.log(isPaymentConfirmed);
     const documentId = `${fbSelector.date}-${fbSelector.id}-${fbSelector.time}`;
-  
+
     try {
       const ab = await addDoc(collection(db, `${documentId}`), {
         seat: comb,
         id: seatId,
         status: "selected",
-        isSeatConfirmed: 'booked',
+        isSeatConfirmed: "booked",
         userId: auth?.currentUser?.uid,
         rowNo: rowNo,
         seatNo: seatNo,
@@ -63,36 +72,37 @@ const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPay
         movieId: selector.id,
         time: selector.time,
         date: selector.date,
-        title: selector.movieDetail? selector.movieDetail.original_title : '',
+        title: selector.movieDetail ? selector.movieDetail.original_title : "",
       });
 
-      const bookingSummary= await addDoc(collection(db,auth?.currentUser?.uid),{
-        movieId: selector.id,
-        time: selector.time,
-        date: selector.date,
-        title: selector.movieDetail? selector.movieDetail.original_title : '',
-        seat: comb,
-      })
-      setBookingSum(bookingSummary)
-  
+      const bookingSummary = await addDoc(
+        collection(db, auth?.currentUser?.uid),
+        {
+          movieId: selector.id,
+          time: selector.time,
+          date: selector.date,
+          title: selector.movieDetail
+            ? selector.movieDetail.original_title
+            : "",
+          seat: comb,
+        }
+      );
+      setBookingSum(bookingSummary);
+
       setFStore(ab);
-    
+
       setOpen(true);
       setIsPaymentConfirmed(false);
     } catch (error) {
       console.error("Error adding document:", error);
-  
     }
   };
-  
-    console.log(setFStore,'bbb');
 
+  console.log(setFStore, "bbb");
 
-
-    
   const handleClose = () => {
     setOpen(false);
-    setIsPaymentConfirmed(false)
+    setIsPaymentConfirmed(false);
     navigate("/");
   };
   const handleOpenTicket = () => {
@@ -103,7 +113,7 @@ const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPay
     <>
       <Box sx={{ display: "flex" }}>
         <PaymentOptions />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }} width={'200%'}>
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }} width={"200%"}>
           <Paper
             sx={{
               padding: "10px",
@@ -112,7 +122,7 @@ const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPay
             }}
           >
             <Typography>Amount to be paid </Typography>
-            <Typography>{slicedArray?.map(a=>a.grandTotal)}</Typography>
+            <Typography>{slicedArray?.map((a) => a.grandTotal + snackSelector)}</Typography>
           </Paper>
 
           <Paper sx={{ marginTop: "50px" }}>
@@ -142,7 +152,7 @@ const UpiPage = ({ selectedSeats, setSelectedSeats, isPaymentConfirmed, setIsPay
             className="btn btn-warning w-100 mt-5"
             onClick={handleClickOpen}
           >
-            Pay {slicedArray?.map(a=>a.grandTotal)}
+            Pay {(slicedArray?.map((a) => a.grandTotal + snackSelector))}
           </button>
 
           <Dialog

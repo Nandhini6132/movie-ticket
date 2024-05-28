@@ -9,20 +9,18 @@ import ProfileHeader from "./ProfileHeader";
 const Profile = ({}) => {
   return (
     <>
-    
-    <Grid container>
+      <Grid container>
         <ProfileHeader />
         <Container>
-        <Grid item md={4}>
-          <ProfileSideBar />
-        </Grid>
+          <Grid item md={4}>
+            <ProfileSideBar />
+          </Grid>
 
-        <Grid item md={8}>
-          <PersonalDetail />
-        </Grid>
+          <Grid item md={8}>
+            <PersonalDetail />
+          </Grid>
         </Container>
       </Grid>
-  
     </>
   );
 };

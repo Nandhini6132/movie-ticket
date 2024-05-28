@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "../movies/MovieListing.css";
 import Card from "@mui/material/Card";
@@ -20,6 +20,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import InfoIcon from "@mui/icons-material/Info";
 import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
+import Skeleton from "@mui/material/Skeleton";
 import {
   fetchAllMovies,
   fetchMovieToPlayVideo,
@@ -30,7 +31,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
 
-const MovieListing = ({user, handleLogin}) => {
+const MovieListing = ({ user, handleLogin }) => {
   const [movie, setMovie] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [open, setOpen] = useState(false);
@@ -39,10 +40,10 @@ const MovieListing = ({user, handleLogin}) => {
   const [drawer, setDrawer] = useState(false);
 
   const dispatch = useDispatch();
-  const selector = useSelector((state) => state.allMovie.movie).slice(0, 6);
+  const selector = useSelector((state) => state.allMovie.movie).slice(0, 5);
   const upcomingSelector = useSelector(
     (state) => state.allMovie.upcomingMovie
-  ).slice(0, 6);
+  ).slice(0, 5);
 
   const selectorToPlayVideo = useSelector((state) => state.allMovie.playVideo);
   const singleMovieSelector = useSelector(
@@ -120,6 +121,15 @@ const MovieListing = ({user, handleLogin}) => {
   const dateObj = new Date(releaseDate);
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = dateObj.toLocaleDateString("en-US", options);
+  const [imageStatus, setImageStatus] = useState('loading'); // 'loading', 'loaded', or 'error'
+
+  const handleImageLoad = () => {
+    setImageStatus('loaded');
+  };
+
+  const handleImageError = () => {
+    setImageStatus('error');
+  };
 
   return (
     <>
@@ -129,7 +139,7 @@ const MovieListing = ({user, handleLogin}) => {
           <Card
             key={index}
             sx={{
-              maxWidth: 300,
+              minWidth: 300,
               boxShadow: "none",
               background: "none",
               position: "relative",
@@ -154,12 +164,33 @@ const MovieListing = ({user, handleLogin}) => {
               />
             )}
             <CardActionArea>
-              <CardMedia
-                component="img"
-                height="500"
-                image={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                alt="Movie Poster"
-              />
+          
+                <img
+                  src={`https://image.tmdb.org/t/p/w500/${movie?.poster_path}`}
+                  height={500}
+                  onLoad={handleImageLoad}
+        onError={handleImageError}
+                  alt="Movie Poster"
+                
+                  style={{ display: imageStatus === 'loading' ? 'none' : 'block', width: '100%' }}
+                />
+            
+              {/* {imageStatus === 'loading' && <Skeleton variant="rectangular" width="100%" height={500} />} */}
+
+              {/* {imageError ? (
+                <Skeleton variant="rectangular" width={"100%"} height={500} />
+              ) : (
+                <CardMedia
+                  component="img"
+                  height="500"
+                  image={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                  alt="Movie Poster"
+                  ref={imageRef}
+                  onLoad={() => setImageError(false)} // Set imageError to false on successful load
+                  onError={handleImageError}
+                />
+              )} */}
+
               <CardContent>
                 <Typography gutterBottom variant="body2" component="div">
                   {movie.title}
@@ -168,16 +199,18 @@ const MovieListing = ({user, handleLogin}) => {
                   {movie.original_language === "en" ? "English" : "Hindi"}
                 </Typography>
                 <Stack direction="row" gap={5}>
-                 <Link to={`/moviesessions/${movie.id}`}>
+                  <Link to={`/moviesessions/${movie.id}`}>
                     {" "}
                     <button
-                      onClick={user?() => handleSingleMovie(movie.id):handleLogin}
+                      onClick={
+                        user ? () => handleSingleMovie(movie.id) : handleLogin
+                      }
                       className="btn btn-warning"
                     >
                       Book Tickets
                     </button>
                   </Link>
-                  
+
                   <button className="btn btn-outline-warning">
                     <InfoIcon onClick={() => toogleOpen(movie.id)} />
                   </button>
@@ -308,7 +341,7 @@ const MovieListing = ({user, handleLogin}) => {
           <Card
             key={index}
             sx={{
-              maxWidth: 300,
+              minWidth: 300,
               boxShadow: "none",
               background: "none",
               position: "relative",
@@ -343,12 +376,14 @@ const MovieListing = ({user, handleLogin}) => {
               >
                 Upcoming
               </Typography>
+
               <CardMedia
                 component="img"
                 height="500"
                 image={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                 alt="Movie Poster"
               />
+
               <CardContent>
                 <Typography gutterBottom variant="body2" component="div">
                   {movie.title}
