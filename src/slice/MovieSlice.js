@@ -17,8 +17,10 @@ const initialState = {
   seatNo: {},
   bookingDetails: [],
   snacksDetail: [],
-  overAllTotal:{},
-  subTotal:{}
+  overAllTotal: {},
+  subTotal: {},
+  theaterName: {},
+  location: {}
 
 };
 
@@ -39,9 +41,9 @@ const MovieSlice = createSlice({
     },
 
     getSnack: (state, action) => {
-      const filteredSnacksDetail = state.snacksDetail.filter(item => item !== undefined);
-      if (filteredSnacksDetail.length > 5) {
-        alert('nnnn')
+      const filteredSnacksDetail = state.snacksDetail?.filter(item => item !== undefined);
+      if (filteredSnacksDetail?.length > 5) {
+        // alert('nnnn')
       } else {
 
         const det = {
@@ -51,7 +53,7 @@ const MovieSlice = createSlice({
           snackQuantity: action.payload.quantity
 
         }
-        state.snacksDetail.push(det)
+        state.snacksDetail?.push(det)
       }
     },
 
@@ -98,7 +100,28 @@ const MovieSlice = createSlice({
     getSubTotal: (state, action) => {
       state.subTotal = action.payload;
     },
-    
+    getTheaterName: (state, action) => {
+      state.theaterName = action.payload;
+    },
+    getLocation: (state, action) => {
+      state.location = action.payload;
+    },
+
+    //clear all
+    clearAllDetails:(state)=>{
+      state.movieDetail=null;
+      state.date=null;
+      state.time=null;
+      state.id=null;
+      state.rowNo=null;
+      state.seatNo=null;
+      state.bookingDetails=null;
+      state.snacksDetail=null;
+      state.overAllTotal=null;
+      state.theaterName=null;
+      state.location=null;
+    }
+
 
   },
   extraReducers: (builder) => {
@@ -121,15 +144,25 @@ const MovieSlice = createSlice({
       });
   },
 });
+const year = 2020;
+const letters = 'earth'
 
 export const fetchAllMovies = createAsyncThunk(
   "movies/getAllMovies",
-  async () => {
+  async (id) => {
+    if(id){
+      const response= await axios.get( `https://api.themoviedb.org/3/movie/${id}?api_key=2685c7ff5ed7c6d106338b0631c3a318`)
+      return response.data
+    }
+   else{
     const response = await axios.get(
       "https://api.themoviedb.org/3/movie/now_playing?api_key=2685c7ff5ed7c6d106338b0631c3a318"
     );
+    return response.data.results.slice(2,7)
+   }
+    // const response= await axios.get(`http://www.omdbapi.com/?s=${letters}&y=${year}&apikey=63ba76a2`)
 
-    return response.data.results;
+    //  return response.data.Search;
   }
 );
 
@@ -160,7 +193,7 @@ export const fetchUpcomingMovie = createAsyncThunk(
     const response = await axios.get(
       `https://api.themoviedb.org/3/movie/upcoming?api_key=2685c7ff5ed7c6d106338b0631c3a318`
     );
-    return response.data.results;
+    return response.data.results.slice(2,7);
   }
 );
 
@@ -174,6 +207,8 @@ export const fetchCastAndCrew = createAsyncThunk(
   }
 );
 
+
+
 export const {
   getAmount,
   getSeatLength,
@@ -186,7 +221,10 @@ export const {
   getSnack,
   removeSnack,
   getOverAllTotal,
-  getSubTotal
+  getSubTotal,
+  getTheaterName,
+  getLocation,
+  clearAllDetails
 
 
 } = MovieSlice.actions;

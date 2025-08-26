@@ -1,8 +1,8 @@
 .movie-list{
     display: flex;
-    gap: 10px;
+    gap: 20px;
     flex-wrap: wrap;
-    justify-content: center;
+    /* justify-content: center; */
     align-items: center;
 }
 .streaming{

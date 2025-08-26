@@ -1,19 +1,57 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const Tmdb = () => {
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await axios.get('https://api.themoviedb.org/3/movie/now_playing?api_key=2685c7ff5ed7c6d106338b0631c3a318');
-            console.log(response.data.results)
-        };
+const Movies2020 = () => {
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-        fetchData();
-    }, []);
+  useEffect(() => {
+    const fetchMovies = async () => {
+      const apiKey = '63ba76a2';
+      const year = 2020;
+      const letters = 'earth'
+      const moviesList = [];
 
-    return (
-        <div>tmdb</div>
-    );
+      for (const letter of letters) {
+        try {
+          const response = await axios.get(`http://www.omdbapi.com/?s=${letters}&y=${year}&Plot=Full&apikey=63ba76a2`);
+          if (response.data && response.data.Response === "True") {
+            response.data.Search.forEach(movie => {
+              if (movie.Year === year.toString()) {
+                moviesList.push(movie);
+              }
+            });
+          }
+          console.log(response.data)
+        } catch (error) {
+          console.error(`Error fetching data for letter: ${letter}`, error);
+          setError(error);
+          break;
+        }
+      }
+
+      setMovies(moviesList);
+      setLoading(false);
+    };
+
+    fetchMovies();
+    
+  }, []);
+
+
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error fetching movies: {error.message}</div>;
+  }
+
+  return (
+    <></>
+  );
 };
 
-export default Tmdb;
+export default Movies2020;

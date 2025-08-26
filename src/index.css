@@ -1,96 +1,123 @@
-
-
-*{
-    padding: 0 ;
-    margin: 0;
-    box-sizing: border-box;
-    font-family: system-ui; 
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: system-ui;
 }
-.App{
-    min-height: 100vh;
-    background-color: #F1F1F1;
+.App {
+  min-height: 100vh;
+  background-color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.container-fluid{
-    padding: 0;
-  }
-
-  .h6{
-    width: 40px;
-    height: 35px;
-    background: #E5E5E5;
-    color: #4f4f4f !important;
-    text-align: center;
-    cursor: pointer;
-    /* border-radius: 10px 10px 0 0; */
-    border-radius: 6px;
-    border: none;
-}
-.h6:hover{
-    transform: scale(1.2);
-    background-color: #ffc107;
-}
-.div{
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-direction: row-reverse;
-    justify-content: center;
-}
-.selected{
-    background-color: #ffc107;
-    /* color: white !important; */
-}
-.ticket button[disabled]{
-    background-color: #0532ffc9;
-    color: white !important;
-    cursor:not-allowed
-  
+.container-fluid {
+  padding: 0;
 }
 
-button[disabled]:hover{
-    transform: none;
-    background-color: #0532ffc9;;
+.h6 {
+  width: 40px;
+  height: 35px;
+  background: #e5e5e5;
+  color: #4f4f4f !important;
+  text-align: center;
+  cursor: pointer;
+  /* border-radius: 10px 10px 0 0; */
+  border-radius: 6px;
+  border: none;
 }
-.profileContainer{
-    background: #f6f6f6;
-    border-top: .5px solid #e3e3e3;
-    padding: 6rem 0;
+.h6:hover {
+  transform: scale(1.2);
+  background-color: #ffc107;
 }
-.true{}
-.screen{
-    width: 70%;
-    margin: auto;
-    /* height: 100%; */
-    height: 150px;
-    /* background: black; */
-    /* border-radius: 29px 10px 18px 20px; */
-    border-radius: 50%;
-    border-top: 11px solid black;
-    margin-top: 5rem;
+.div {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-direction: row-reverse;
+  justify-content: center;
 }
-.screenText{
-    text-align: center;
-    margin-top: -87px;
-    margin-bottom: 78px;
+.selected {
+  background-color: #ffc107;
+  /* color: white !important; */
 }
-.seatOrder .div:nth-child(4n+2) {
-    margin-bottom: 30px;
-  }
-  .colan{
-    display: flex;
-    flex-direction: column;
-    font-size: 34px !important;
-    font-family: system-ui !important;
-  }
-  .cinemas{
-    margin-top: -14px;
-    font-size: 14px;
-    text-align: center;
-    letter-spacing: 6px;
-    color: #ffc107;
-  }
- .input input:focus{
-    border-color: none;
-    box-shadow: none;
-    pointer-events: none;
-  }
+button[disabled] {
+  background-color: #0532ffc9;
+  color: white !important;
+  cursor: not-allowed;
+}
+
+button[disabled]:hover {
+  transform: none;
+  background-color: #0532ffc9;
+}
+.profileContainer {
+  background: #f6f6f6;
+  border-top: 0.5px solid #e3e3e3;
+  padding: 6rem 0;
+}
+.true {
+}
+.screen {
+  width: 70%;
+  margin: auto;
+  /* height: 100%; */
+  height: 150px;
+  /* background: black; */
+  /* border-radius: 29px 10px 18px 20px; */
+  border-radius: 50%;
+  border-top: 11px solid black;
+  margin-top: 5rem;
+}
+.screenText {
+  text-align: center;
+  margin-top: -87px;
+  margin-bottom: 78px;
+}
+.seatOrder .div:nth-child(4n + 2) {
+  margin-bottom: 30px;
+}
+.colan {
+  display: flex;
+  /* flex-direction: column; */
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  font-family: system-ui !important;
+}
+.cinemas {
+  margin-top: -14px;
+  font-size: 14px;
+  text-align: center;
+  letter-spacing: 6px;
+  color: #ffc107;
+}
+.input input:focus {
+  border-color: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+.wb {
+  position: relative;
+  padding: 3px 5px 0 5px;
+  /* border-radius: 2px 2px 2px 2px; */
+  border-bottom: 20px;
+  /* border-radius: 29px 31px 34px 27px; */
+  border-radius: 50%;
+  /* margin: 0 1px; */
+  display: flex;
+  z-index: 2;
+  color: white;
+}
+.wb::after {
+    content: '';
+    position: absolute;
+    background: #ffbf00;
+    top: 5px;
+    left: 3px;
+    width: 86%;
+    height: 81%;
+    z-index: -1;
+    transform: rotate(16deg);
+    border-radius: 20%;
+
+}

@@ -1,0 +1,43 @@
+.footer{
+    background-color: #333338;
+    
+    width: 100%;
+    margin-top: 30px;
+}
+.topics{
+    color: #A5A5A5;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+.borderClass{
+    border-right: 1px solid #A5A5A5;;
+    padding-right: 10px;
+}
+.textColor{
+    color: #A5A5A5;
+    text-decoration: none;
+    font-size: small;
+}
+.textColor:hover{
+    color: white;
+    text-decoration: underline;
+}
+.hr{
+    width: 45%;
+    color: #A5A5A5;
+}
+
+.icon{
+    height: 40px;
+    width: 40px;
+    background: grey;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+.icon:hover{
+    background: white;
+    cursor: pointer;
+ 
+}

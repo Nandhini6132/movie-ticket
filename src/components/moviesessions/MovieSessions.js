@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { Box } from "@mui/material";
+import { Box, Divider, Paper } from "@mui/material";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
@@ -11,6 +11,12 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMovieToGetDetails } from "../../slice/MovieSlice";
 import TextField from "@mui/material/TextField";
+import MovieBannerComponent from "./MovieBannerComponent";
+import TheaterOptionComponent from "./TheaterOptionComponent";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Footer from "../footer/Footer";
+
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -51,7 +57,8 @@ function a11yProps(index) {
   };
 }
 
-const MovieSessions = ({ handleChange, value, toogleOpen }) => {
+const MovieSessions = ({ handleChange, value, toogleOpen, location, handleOpen, theater }) => {
+  console.log(theater)
   const date = new Date();
   const todayDate = date.getDate();
   const getMonth = date.getMonth();
@@ -147,25 +154,24 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
   console.log(today, tomarrow);
 
   const movieselector = useSelector((state) => state.allMovie.movieDetail);
-  const runtimeInMinutes = movieselector.runtime;
+  const runtimeInMinutes = movieselector?.runtime;
   const hours = Math.floor(runtimeInMinutes / 60);
   const minutes = runtimeInMinutes % 60;
 
-  const releaseDate = movieselector.release_date;
+  const releaseDate = movieselector?.release_date;
 
   const dateObj = new Date(releaseDate);
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = dateObj.toLocaleDateString("en-US", options);
 
-  const showTime = ["07:10 AM", "11:00 AM", "02:00 PM", "06:00 PM"];
+  let showTime = ["09:10 AM", "11:30 AM", "02:00 PM", "06:00 PM"];
 
   const getCurrentTime = () => {
     const currentDate = new Date();
     const hours = currentDate.getHours();
     const minutes = currentDate.getMinutes();
-    const currentTime = `${hours < 10 ? "0" + hours : hours}:${
-      minutes < 10 ? "0" + minutes : minutes
-    }`;
+    const currentTime = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes
+      }`;
     return currentTime;
   };
 
@@ -183,75 +189,40 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
   };
 
   const currentTime = getCurrentTime();
+
+  //theater details
+  const [isTheaterSelected, setIsTheaterSelected] = useState(false)
+  let displayTime;
+  let filteredTheater = theater.map(a => a).filter(a => a.name === location)
+
+
+  useEffect(() => {
+    if (location === null) {
+      toast.error('Please choose the location', {
+        message: 'Please choose the location',
+        autoClose: 1000,
+
+      })
+    }
+  }, [])
+  console.log(filteredTheater)
   return (
     <>
+    
       <Container fluid className="p-0">
-        <Box>
-          <div
-            className="moviesessionBg"
-            style={{
-              backgroundImage: `linear-gradient(to right, rgb(0 59 255 / 51%), rgb(22 43 63 / 58%)), url(https://image.tmdb.org/t/p/original/${movieselector.backdrop_path})`,
-              height: "420px",
-              backgroundPosition: "center",
-            }}
-          >
-            <Box className="h-100" ml={25} mr={25}>
-              <div className="d-flex" style={{ height: "100%" }}>
-                <div className="d-flex align-items-center ">
-                  <img
-                    className=""
-                    src={`https://image.tmdb.org/t/p/original/${movieselector.poster_path})`}
-                    alt=""
-                    width={200}
-                    height={350}
-                    style={{ borderRadius: "10px" }}
-                  />
-                </div>
+        <ToastContainer position="top-center" theme="dark" />
+        <MovieBannerComponent
+          movieselector={movieselector}
+          hours={hours}
+          minutes={minutes}
+          formattedDate={formattedDate}
+          toogleOpen={toogleOpen}
+          id={id}
+        />
 
-                <Stack ml={30} mt={5} sx={{ color: "white" }}>
-                  <Typography variant="h4" sx={{ fontWeight: 800 }}>
-                    {movieselector.original_title}
-                  </Typography>
-                  <Stack direction={"row"}>
-                    {" "}
-                    U
-                    <ul
-                      className="d-flex gap-5"
-                      style={{ listStyleType: "disc" }}
-                    >
-                      <li>{`${hours}h ${minutes}min`}</li>
-                      <li>{formattedDate}</li>
-                      <li>
-                        {" "}
-                        <li className="d-flex gap-2">
-                          {movieselector.genres?.map((a) => (
-                            <p>{a.name}</p>
-                          ))}
-                        </li>
-                      </li>
-                      <li>English</li>
-                    </ul>
-                  </Stack>
+        <TheaterOptionComponent isTheaterSelected={isTheaterSelected} setIsTheaterSelected={setIsTheaterSelected} />
 
-                  <Stack className="mt-5">
-                    <Typography className="mt-2">
-                      {movieselector.overview}
-                    </Typography>
-                  </Stack>
 
-                  <a
-                    href="#"
-                    onClick={() => toogleOpen(id)}
-                    style={{ color: "white" }}
-                    className="mt-4"
-                  >
-                    View Details
-                  </a>
-                </Stack>
-              </div>
-            </Box>
-          </div>
-        </Box>
         <Box sx={{ width: "100%" }}>
           <Box
             sx={{
@@ -312,47 +283,104 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
                 background: "white",
                 margin: "5rem 10rem",
                 borderRadius: "18px",
-                padding: "5rem 3rem",
+                padding: "2rem 0rem 5rem 0rem",
+                height: '500px'
               }}
             >
-              {showTime.map((time) => (
+              <Stack gap={5} width={'100%'}>
                 <>
-                  <Link
-                    to={
-                      isTimePast(currentTime, time)
-                        ? "#"
-                        : `/moviesessions/${id}/ticket/${time}`
-                    }
-                  >
-                    {" "}
-                    <TextField
-                      id="outlined-read-only-input"
-                      label="English"
-                      defaultValue={time}
-                      InputProps={{
-                        readOnly: true,
-                        disabled: isTimePast(currentTime, time),
-                      }}
-                      sx={{
-                        width: "100px",
-                        input: {
-                          cursor: isTimePast(currentTime, time)
-                            ? "not-allowed"
-                            : "pointer",
-                          background: isTimePast(currentTime, time)
-                            ? "#f5f5f5"
-                            : "#346ec22b",
-                          pointerEvents: isTimePast(currentTime, time)
-                            ? "none"
-                            : "auto",
-                        },
-                      }}
-                    />
-                  </Link>
+                  {filteredTheater.length !== 0 ? filteredTheater.map(a => {
+                    return (
+                      <React.Fragment key={a.name}>
+                        {a.theaterName.map(theater => {
+                          let displayTimes = theater.number === 1 ? showTime.slice(0, 5) :
+                            theater.number === 2 ? showTime.slice(0, 1) :
+                              showTime.slice(2, 3)
+                          return (
+                            <React.Fragment key={theater.id}>
+                              <Divider sx={{ borderWidth: '0.5px' }} />
+                              <Stack direction='row' gap={9}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, color: '#535353' }} style={{ width: '30%', display: 'flex', justifyContent: 'end' }}>{theater.name}</Typography>
+
+                                <Stack direction={"row"} gap={3}>
+                                  {displayTimes.map((time) => (
+
+                                    <Link
+                                      to={
+                                        isTimePast(currentTime, time)
+                                          ? "#"
+                                          : `/moviesessions/${id}/${theater.id}/ticket/${time}`
+                                      }
+                                    >
+                                      {" "}
+                                      <TextField
+                                        id="outlined-read-only-input"
+                                        label="English"
+                                        defaultValue={time}
+                                        InputProps={{
+                                          readOnly: true,
+                                          disabled: isTimePast(currentTime, time),
+                                        }}
+                                        inputProps={{
+                                          style: {
+                                            padding: '8px 10px'
+                                          }
+                                        }}
+                                        sx={{
+                                          width: "100px",
+                                          input: {
+                                            cursor: isTimePast(currentTime, time)
+                                              ? "not-allowed"
+                                              : "pointer",
+                                            background: isTimePast(currentTime, time)
+                                              ? "#f5f5f5"
+                                              : "#346ec22b",
+                                            pointerEvents: isTimePast(currentTime, time)
+                                              ? "none"
+                                              : "auto",
+                                          },
+                                        }}
+                                      />
+                                    </Link>
+
+                                  ))}
+                                </Stack>
+                              </Stack>
+
+                            </React.Fragment>
+                          )
+                        })}
+
+                      </React.Fragment>
+                    )
+                  }) :
+                    <div>
+                      <Paper className="py-3 mx-3 d-flex justify-content-between pe-3 align-items-center"> <h3 className="ps-3">Coming Soon</h3>
+                        <h5 ><Link to={'/'} className="text-danger text-decoration-none">Explore Other Movies</Link></h5>
+                      </Paper>
+
+                      <div className="d-flex justify-content-center mt-5 flex-column align-items-center">
+                        <img src="https://assets-in.bmscdn.com/discovery-catalog/lib/tr:w-600/empty-state-no-movie.png" alt="" width={300} />
+
+                        <div className="mt-4">
+                          <h6 className="text-center">Oops, there are no cinemas in that location</h6>
+                          <p className="text-secondary text-center
+                  " style={{ fontSize: '14px' }}>Change your location to view best cinema</p>
+                          <div className="text-center">
+                            <button className="btn btn-sm btn-danger w-75" onClick={handleOpen}>Change Region</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
                 </>
-              ))}
+              </Stack>
+
             </Stack>
+
           </CustomTabPanel>
+
+
           <CustomTabPanel value={value} index={1}>
             <Stack
               direction="row"
@@ -362,68 +390,198 @@ const MovieSessions = ({ handleChange, value, toogleOpen }) => {
                 background: "white",
                 margin: "5rem 10rem",
                 borderRadius: "18px",
-                padding: "5rem 3rem",
+                padding: "2rem 0rem 5rem 0rem",
+                height: '500px'
               }}
             >
-              {showTime.map((time) => (
+              <Stack gap={5} width={'100%'}>
                 <>
-                  <Link to={`/moviesessions/${id}/ticket/${time}`}>
-                    {" "}
-                    <TextField
-                      id="outlined-read-only-input"
-                      label="English"
-                      defaultValue={time}
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                      sx={{
-                        width: "100px",
-                        input: { cursor: "pointer", background: "#346ec22b;" },
-                      }}
-                    />
-                  </Link>
+                  {filteredTheater.length !== 0 ? filteredTheater.map(a => {
+                    return (
+                      <React.Fragment key={a.name}>
+                        {a.theaterName.map(theater => {
+                          let displayTimes =
+                            theater.number === 2 ?
+                              showTime.slice(1, 4) :
+                              theater.number === 1 ?
+                                showTime.slice(0, 1) :
+                                showTime.slice(3, 5)
+
+
+                          return (
+                            <React.Fragment key={theater.id}>
+                              <Divider sx={{ borderWidth: '0.5px' }} />
+                              <Stack direction='row' gap={9}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, color: '#535353' }} style={{ width: '30%', display: 'flex', justifyContent: 'end' }}>
+                                  {theater.name}
+                                </Typography>
+
+                                <Stack direction="row" gap={3}>
+                                  {displayTimes.map((time, index) => (
+                                    <Link to={`/moviesessions/${id}/${theater.id}/ticket/${time}`} key={index}>
+                                      <TextField
+                                        id="outlined-read-only-input"
+                                        label="English"
+                                        defaultValue={time}
+                                        InputProps={{
+                                          readOnly: true,
+                                        }}
+                                        sx={{
+                                          width: "100px",
+                                          input: { cursor: "pointer", background: "#346ec22b;" },
+                                        }}
+                                        inputProps={{
+                                          style: {
+                                            padding: '8px 10px'
+                                          }
+                                        }}
+                                      />
+                                    </Link>
+                                  ))}
+                                </Stack>
+                              </Stack>
+                            </React.Fragment>
+                          );
+                        })}
+                      </React.Fragment>
+                    )
+                  }) :
+                    <div>
+                      <Paper className="py-3 mx-3 d-flex justify-content-between pe-3 align-items-center"> <h3 className="ps-3">Coming Soon</h3>
+                        <h5 ><Link to={'/'} className="text-danger text-decoration-none">Explore Other Movies</Link></h5>
+                      </Paper>
+
+                      <div className="d-flex justify-content-center mt-5 flex-column align-items-center">
+                        <img src="https://assets-in.bmscdn.com/discovery-catalog/lib/tr:w-600/empty-state-no-movie.png" alt="" width={300} />
+
+                        <div className="mt-4">
+                          <h6 className="text-center">Oops, there are no cinemas in that location</h6>
+                          <p className="text-secondary text-center
+                 " style={{ fontSize: '14px' }}>Change your location to view best cinema</p>
+                          <div className="text-center">
+                            <button className="btn btn-sm btn-danger w-75" onClick={handleOpen}>Change Region</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  }
                 </>
-              ))}
+              </Stack>
             </Stack>
           </CustomTabPanel>
+
+
           <CustomTabPanel value={value} index={2}>
             <Stack
               direction="row"
               gap={4}
               sx={{
                 cursor: "pointer",
-                pl: "200px",
                 background: "white",
                 margin: "5rem 10rem",
                 borderRadius: "18px",
-                padding: "5rem 3rem",
+                padding: "2rem 0rem 5rem 0rem",
+                height: '500px'
               }}
             >
-              {showTime.map((time) => (
+              <Stack gap={5} width={'100%'}>
                 <>
-                  <Link to={`/moviesessions/${id}/ticket/${time}`}>
-                    {" "}
-                    <TextField
-                      id="outlined-read-only-input"
-                      label="English"
-                      defaultValue={time}
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                      sx={{
-                        width: "100px",
-                        input: { cursor: "pointer", background: "#346ec22b;" },
-                      }}
-                    />
-                  </Link>
+                  {filteredTheater.length !== 0 ? filteredTheater.map(a => {
+
+
+                    return (
+                      <React.Fragment key={a.name}>
+                        {a.theaterName.map(theater => {
+                          let displayTimes = theater.number === 1 ? showTime.slice(0, 2) :
+                            theater.number === 2 ? showTime.slice(0, 3) :
+                              showTime.slice(0, 3)
+                          return (
+                            <React.Fragment key={theater.id}>
+                              <Divider sx={{ borderWidth: '0.5px' }} />
+                              <Stack direction='row' gap={9}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 600, color: '#535353' }}
+                                  style={{ width: '30%', display: 'flex', justifyContent: 'end' }}
+                                >
+                                  {theater.name}
+                                </Typography>
+
+                                <Stack direction="row" gap={3}>
+
+                                  {displayTimes.map((time, index) => (
+                                    <Link to={`/moviesessions/${time.id}/${theater.id}/ticket/${time.time}`} key={index}>
+                                      <TextField
+                                        id="outlined-read-only-input"
+                                        label="English"
+                                        defaultValue={time}
+                                        InputProps={{
+                                          readOnly: true,
+                                        }}
+                                        sx={{
+                                          width: "100px",
+                                          input: { cursor: "pointer", background: "#346ec22b;" },
+                                        }}
+                                        inputProps={{
+                                          style: {
+                                            padding: '8px 10px'
+                                          }
+                                        }}
+                                      />
+                                    </Link>
+                                  ))}
+                                </Stack>
+                              </Stack>
+                            </React.Fragment>
+                          )
+                        })
+                        }
+                      </React.Fragment>
+                    )
+                  }) :
+                    <div>
+                      <Paper className="py-3 mx-3 d-flex justify-content-between pe-3 align-items-center"> <h3 className="ps-3">Coming Soon</h3>
+                        <h5 ><Link to={'/'} className="text-danger text-decoration-none">Explore Other Movies</Link></h5>
+                      </Paper>
+
+                      <div className="d-flex justify-content-center mt-5 flex-column align-items-center">
+                        <img src="https://assets-in.bmscdn.com/discovery-catalog/lib/tr:w-600/empty-state-no-movie.png" alt="" width={300} />
+
+                        <div className="mt-4">
+                          <h6 className="text-center">Oops, there are no cinemas in that location</h6>
+                          <p className="text-secondary text-center
+                 " style={{ fontSize: '14px' }}>Change your location to view best cinema</p>
+                          <div className="text-center">
+                            <button className="btn btn-sm btn-danger w-75" onClick={handleOpen}>Change Region</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
                 </>
-              ))}
+                {/* {theater.map(theater => {
+
+                  let displayTimes = theater.id === 'pvr' ? showTime.slice(0, 2) : showTime;
+
+                  return (
+                 
+                  );
+                })} */}
+
+              </Stack>
             </Stack>
           </CustomTabPanel>
         </Box>
       </Container>
+      
     </>
   );
 };
+
+
+
+
+
 
 export default MovieSessions;

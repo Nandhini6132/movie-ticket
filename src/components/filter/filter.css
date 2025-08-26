@@ -1,0 +1,11 @@
+.filter .browTheater:hover{
+    background-color: none !important;
+    color: white !important;
+   
+}
+.browTheater{
+    margin-top: 10px;
+}
+.linkbtn:hover{
+    color: white;
+}

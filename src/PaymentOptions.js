@@ -68,6 +68,12 @@ const sidebar = [
         navigate: "/upiPage",
         icon: PaymentIcon,
       },
+      {
+        id: 2,
+        title: "Debit Card",
+        navigate: "/debitCard",
+        icon: PaymentIcon,
+      },
     ],
   },
 ];
@@ -83,25 +89,7 @@ function PaymentOptions({ setDark, children, themes }) {
   };
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  //   const opens = Boolean(anchorEl);
-  //   const handleClick = (event) => {
-  //     setAnchorEl(event.currentTarget);
-  //   };
-  //   const handleClose = () => {
-  //     setAnchorEl(null);
-  //   };
-  //   const [activeMenu, setActiveMenu] = useState("");
 
-  //   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
-
-  //   const handleSubMenuToggle = () => {
-  //     setIsSubMenuOpen((prev) => !prev);
-  //   };
-  //   const [openAccordionId, setOpenAccordionId] = useState(null);
-
-  //   const handleAccordionToggle = (accordionId) => {
-  //     setOpenAccordionId(openAccordionId === accordionId ? null : accordionId);
-  //   };
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   return (
@@ -111,7 +99,7 @@ function PaymentOptions({ setDark, children, themes }) {
         open={open}
         className="drawer"
         // sx={{ width: "300px" }}
-        PaperProps={{ style: { maxWidth: "25%", top: "80px" } }}
+        PaperProps={{ style: { maxWidth: "25%", top: "115px" } }}
       >
         <div className="drawer-content" sx={{ width: "100%" }}>
           {children}
@@ -155,7 +143,7 @@ function PaymentOptions({ setDark, children, themes }) {
                         onClick={() => setSelectedIndex(menu.id)}
                         style={
                           selectedIndex === menu.id
-                            ? { backgroundColor: "#F2F9FE" }
+                            ? { backgroundColor: "rgb(255 193 7)" }
                             : {}
                         }
                         sx={{
@@ -179,7 +167,7 @@ function PaymentOptions({ setDark, children, themes }) {
                           sx={{ opacity: open ? 1 : 0, color: "#72849A" }}
                           style={
                             selectedIndex === menu.id
-                              ? { color: "skyblue" }
+                              ? { color: "white" }
                               : {}
                           }
                         />

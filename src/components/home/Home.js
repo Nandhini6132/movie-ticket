@@ -10,36 +10,35 @@ import Poster3 from "../../assets/poster3.jpg";
 import Poster4 from "../../assets/poster4.webp";
 import Poster5 from "../../assets/poster5.jpg";
 
-const Home = ({ user, handleLogin }) => {
+const Home = ({ user, handleLogin, location }) => {
   return (
     <>
       <Container fluid className="mt-2 p-0">
-        <Carousel fade>
+        <Carousel fade >
           <Carousel.Item>
-            {/* <Poster text="First slide" /> */}
-            <img src={Poster} alt="" width={"100%"} height={"450px"} />
+
+            <img src={Poster} alt="" width={"100%"} height={"350px"} style={{ borderRadius: '4px' }} />
           </Carousel.Item>
           <Carousel.Item>
-            {/* <Poster text="Second slide" /> */}
-            <img src={Poster2} alt="" width={"100%"} height={"450px"} />
+
+            <img src={Poster2} alt="" width={"100%"} height={"350px"} style={{ borderRadius: '4px' }} />
           </Carousel.Item>
           <Carousel.Item>
-            {/* <Poster text="Third slide" /> */}
-            <img src={Poster3} alt="" width={"100%"} height={"450px"} />
+
+            <img src={Poster3} alt="" width={"100%"} height={"350px"} style={{ borderRadius: '4px' }} />
           </Carousel.Item>
 
           <Carousel.Item>
-            {/* <Poster text="Third slide" /> */}
-            <img src={Poster4} alt="" width={"100%"} height={"450px"} />
+
+            <img src={Poster4} alt="" width={"100%"} height={"350px"} style={{ borderRadius: '4px' }} />
           </Carousel.Item>
 
           <Carousel.Item>
-            {/* <Poster text="Third slide" /> */}
-            <img src={Poster5} alt="" width={"100%"} height={"450px"} />
+
+            <img src={Poster5} alt="" width={"100%"} height={"350px"} style={{ borderRadius: '4px' }} />
           </Carousel.Item>
         </Carousel>
-        {/* <div className='bg-img'></div> */}
-        <MovieListing user={user} handleLogin={handleLogin} />
+        <MovieListing user={user} handleLogin={handleLogin}   location={location} />
       </Container>
     </>
   );

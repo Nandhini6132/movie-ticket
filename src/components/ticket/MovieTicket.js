@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { auth, db } from "../../firebase/firebase";
 // import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -15,6 +15,8 @@ import tomatoPizza from "../../assets/cheeseTomatoPizza-removebg-preview.png";
 import pannerSandwich from "../../assets/popcorn-removebg-preview.png";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import {
   addDoc,
@@ -41,11 +43,14 @@ import {
   getSnack,
   removeSnack,
   getOverAllTotal,
+  getTheaterName,
 } from "../../slice/MovieSlice";
 import { Increment, Decrement, setProducts } from "../../slice/CounterSlice";
 
 import { Container, Form } from "react-bootstrap";
 import MovieDetailComponent from "../../MovieDetailComponent";
+import ErrorBoundary from "../../ErrorBoundary";
+import { ArrowRightIcon, ChevronsRight } from "lucide-react";
 
 const MovieTicket = ({
   user,
@@ -73,11 +78,14 @@ const MovieTicket = ({
   setDob,
   dob,
   maritalStatus,
+  location,
 }) => {
   const [combo, setCombo] = useState([]);
   const [addSnacks, setAddSnacks] = useState(false);
   const [displayQuantity, setDisplayQuantity] = useState(false);
   const [addedProducts, setAddedProducts] = useState([]);
+  //location
+  const locationSelector = useSelector((state) => state.allMovie.location);
 
   let price = 120;
   let tax = 4.36;
@@ -141,17 +149,19 @@ const MovieTicket = ({
 
   const { time } = useParams();
   const { id } = useParams();
+  const { theater } = useParams();
+
   useEffect(() => {
     dispatch(fetchMovieToGetDetails(id));
     dispatch(getDate(BookingDate));
     dispatch(getTime(time));
     dispatch(getId(id));
+    dispatch(getTheaterName(theater));
   }, []);
 
   const noOfSeats = selectedSeats
     .filter((seat) => seat.payment === false)
     .flatMap((a) => a.seat).length;
-
 
   const seatInfo = selectedSeats.filter((a) => a.payment === false);
   const comb = seatInfo.map((seat) => `${seat.rowNo}${seat.seatNo}`);
@@ -159,7 +169,6 @@ const MovieTicket = ({
   const totalPrice = price * noOfSeats;
 
   const grandTotal = totalPrice + tax * noOfSeats;
-
 
   const dispatch = useDispatch();
   const [show, setShow] = useState(false);
@@ -184,7 +193,7 @@ const MovieTicket = ({
 
   const selector = useSelector((state) => state.allMovie.movieDetail.id);
 
-  const documentId = `${BookingDate}-${id}-${time}`;
+  const documentId = `${locationSelector}-${theater}-${BookingDate}-${id}-${time}`;
   const overAllSeats = [
     { id: 1, rowNo: "A", seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
     { id: 2, rowNo: "B", seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
@@ -194,12 +203,12 @@ const MovieTicket = ({
     { id: 6, rowNo: "F", seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
     { id: 7, rowNo: "G", seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
     { id: 8, rowNo: "H", seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
-
   ];
 
+  console.log(selectedSeats);
   const handleToggle = async (rowNo, seatNo) => {
-    if (user) {
-      const seatId = `${time}*${id}*${todayDate}th${month}*seatNo${seatNo}`;
+    if (user && location !== null) {
+      const seatId = `${locationSelector}*${theater}*${time}*${id}*${todayDate}th${month}*seatNo${seatNo}`;
       const isSelected = selectedSeats.find(
         (seat) => seat.rowNo === rowNo && seat.seatNo === seatNo
       );
@@ -210,7 +219,7 @@ const MovieTicket = ({
       if (isSelected) {
         dispatch(removeRowAndSeat());
         console.log(documentId, "idd");
-        // await deleteDoc(doc(db, `${documentId}`, isSelected?.idDoc));
+
         setSelectedSeats((prevSeats) =>
           prevSeats.filter(
             (seat) => !(seat.rowNo === rowNo && seat.seatNo === seatNo)
@@ -221,15 +230,6 @@ const MovieTicket = ({
         dispatch(getRowNo(rowNo));
         setRowNo((prev) => [...prev, { rowNo }]);
         setSeatNo((prev) => [...prev, { seatNo }]);
-
-        // const ab = await addDoc(collection(db, `${documentId}`), {
-        //   rowNo,
-        //   seatNo,
-        //   id: seatId,
-        //   status: "selected",
-        //   userId: currentName.uid,
-        // });
-        // console.log(ab, "hkjhjk");
 
         setSelectedSeats((prevSeats) => [
           ...prevSeats,
@@ -242,11 +242,17 @@ const MovieTicket = ({
             userId: currentName.uid,
             isSeatConfirmed: "booked",
             payment: isPaymentConfirmed,
+            theater: theater,
+            location: locationSelector,
           },
         ]);
       }
     } else {
       console.log("pls login");
+      toast.error("Please choose the location", {
+        message: "Please choose the location",
+        autoClose: false,
+      });
     }
   };
 
@@ -259,20 +265,17 @@ const MovieTicket = ({
   useEffect(() => {
     const checkIfDataExists = async () => {
       if (user) {
-
         const q = query(collection(db, `${documentId}`));
 
         const querySnapshot = await getDocs(q);
 
-
         let a = [];
-        querySnapshot.forEach((doc) => {
+        querySnapshot?.forEach((doc) => {
           a.push({ idDoc: doc.id, ...doc.data() });
         });
 
         setSelectedSeats(a);
         setFbDocId(a.map((item) => item.idDoc));
-
       } else {
         console.log("no user");
       }
@@ -285,17 +288,23 @@ const MovieTicket = ({
   console.log(selectedSeats.flatMap((a) => a.seat).length);
   const [userData, setUserData] = useState();
   const [userDataExists, setUserDataExists] = useState(false);
-  const userDocRef = doc(db, "users", auth.currentUser?.uid);
+  
+  const userDocRef = doc(db, "users", auth?.currentUser?.uid) ;
 
   useEffect(() => {
-    const checkUserDocument = async () => {
-      const userDocRef = doc(db, "users", auth.currentUser?.uid);
-      const docSnap = await getDoc(userDocRef);
-      setUserDataExists(docSnap.exists());
-    };
+    try {
+      const checkUserDocument = async () => {
+        const userDocRef = doc(db, "users", auth?.currentUser?.uid);
+        const docSnap = await getDoc(userDocRef);
+        setUserDataExists(docSnap.exists());
+      };
 
-    checkUserDocument();
+      checkUserDocument();
+    } catch (err) {
+      console.log(err);
+    }
   }, []);
+
   const saveData = async () => {
     try {
       const docSnap = await getDoc(userDocRef);
@@ -332,20 +341,20 @@ const MovieTicket = ({
     (state) => state.allMovie.bookingDetails
   );
 
-  const length = showDetailsSelector.length;
-  const slicedArray = showDetailsSelector.slice(length - 1, length);
+  const length = showDetailsSelector?.length;
+  const slicedArray = showDetailsSelector?.slice(length - 1, length);
   const seatInfor = slicedArray?.map((a) => a.comb)?.map((seat) => seat);
   const amt =
-    slicedArray.map((a) => a?.seats) * slicedArray.map((a) => a?.amount);
+    slicedArray?.map((a) => a?.seats) * slicedArray?.map((a) => a?.amount);
 
   const counterSelector = useSelector((state) => state.counter);
   let quantity;
-  const snackDetailsss = useSelector(state => state.allMovie.snacksDetail)
-  const snackDetail = snackDetailsss.filter(item => item.id !== undefined);
-  const add = snackDetail?.map(a => a.snackPrice)
-  console.log(add)
+  const snackDetailsss = useSelector((state) => state.allMovie.snacksDetail);
+  const snackDetail = snackDetailsss?.filter((item) => item.id !== undefined);
+  const add = snackDetail?.map((a) => a.snackPrice);
+  console.log(add);
   const grandTotalPrice = add?.reduce((a, b) => a + b, 0);
- 
+
   const addSnack = (a) => {
     setDisplayQuantity(true);
     let name = a.name;
@@ -357,7 +366,7 @@ const MovieTicket = ({
         .filter((snack) => snack.snackName === a.name).length + 1;
     console.log(quantity);
     dispatch(getSnack({ ida, name, price }));
-    dispatch(getOverAllTotal(grandTotalPrice))
+    dispatch(getOverAllTotal(grandTotalPrice));
 
     setAddedProducts([...addedProducts, name]);
   };
@@ -370,16 +379,40 @@ const MovieTicket = ({
     const t = ab.splice(0, ab.length - 1);
 
     dispatch(removeSnack(a.id));
-    dispatch(getOverAllTotal(grandTotalPrice))
+    dispatch(getOverAllTotal(grandTotalPrice));
   };
 
-  useEffect(()=>{
-    dispatch(getOverAllTotal(grandTotalPrice))
-  },[addSnacks, removeSnacks])
+  useEffect(() => {
+    dispatch(getOverAllTotal(grandTotalPrice));
+  }, [addSnacks, removeSnacks]);
+
+  //display selected movie and theater name
+  const movieName = useSelector(
+    (state) => state.allMovie.movieDetail.original_title
+  );
+  const theaterName = useSelector((state) => state.allMovie.theaterName);
+  const timeAndDate = useSelector((state) => state.allMovie);
+
 
   return (
     <>
-      <Container fluid style={{ minHeightheight: "90vh", background: "white" }}>
+      <div className="container my-3">
+        {/* {timeAndDate.time&&  <h6 className="text-danger d-flex align-items-center">
+          {movieName} <ChevronsRight />{" "}
+          <span>
+            {theaterName}{" "}
+          </span>
+          <ChevronsRight />{" "}
+          <span>{timeAndDate.time} </span>
+          <ChevronsRight />{" "}
+          <span >
+            {timeAndDate.date}{" "}
+          </span>
+        </h6>} */}
+       
+      </div>
+      <Container fluid style={{ minHeight: "90vh", background: "white" }}>
+        <ToastContainer position="top-center" />
         <Grid container>
           {!addSnacks ? (
             <Grid item md={8}>
@@ -388,24 +421,25 @@ const MovieTicket = ({
                 <Box className="screenText">Screen</Box>
               </div>
               <div className="seatOrder">
-                {overAllSeats.map((row, rowIndex) => (
+                {overAllSeats?.map((row, rowIndex) => (
                   <div key={row.id} className="div">
                     <div>{row.rowNo}</div>
-                    {row.seats.map((seat, seatIndex) => (
+                    {row?.seats?.map((seat, seatIndex) => (
                       <div
                         key={seat}
                         onClick={() => handleToggle(row.rowNo, seat)}
                       >
                         <button
-                          id={`${id}*${todayDate}th${month}*seatNo${seat}`}
-                          className={`h6 seat ticket ${selectedSeats.some(
-                            (selSeat) =>
-                              selSeat.rowNo === row.rowNo &&
-                              selSeat.seatNo === seat
-                          )
+                          id={`${locationSelector}*${theater}*${id}*${todayDate}th${month}*seatNo${seat}`}
+                          className={`h6 seat ticket ${
+                            selectedSeats.some(
+                              (selSeat) =>
+                                selSeat.rowNo === row.rowNo &&
+                                selSeat.seatNo === seat
+                            )
                               ? "selected"
                               : ""
-                            }`}
+                          }`}
                           disabled={selectedSeats.some((selSeat) => {
                             if (!Array.isArray(selSeat.rowNo)) return false;
                             return (
@@ -415,7 +449,9 @@ const MovieTicket = ({
                               selSeat.seatNo.some(
                                 (seatObj) => seatObj.seatNo === seat
                               ) &&
-                              selSeat.payment === true
+                              selSeat.payment === true &&
+                              selSeat.theater &&
+                              selSeat.location
                             );
                           })}
                         >
@@ -427,7 +463,7 @@ const MovieTicket = ({
                 ))}
               </div>
               <Stack direction="row" gap={7} justifyContent={"center"} mt={3}>
-                {seatDetails.map((det, i) => (
+                {seatDetails?.map((det, i) => (
                   <>
                     <Stack direction="row" gap={1}>
                       <div
@@ -454,20 +490,20 @@ const MovieTicket = ({
               {console.log(userDataExists)}
               {userDataExists === true ? (
                 <Stack width={"20%"} margin={"auto"}>
-                  <Link
+                  <button
                     // to="/upiPage"
                     className="btn btn-warning"
                     onClick={handleClick}
                   >
                     Book Now Rs.
                     {amt + tax * slicedArray.map((a) => a?.seats)}
-                  </Link>
+                  </button>
                 </Stack>
               ) : (
                 <Stack width={"20%"} margin={"auto"}>
                   <button onClick={handleShow} className="btn btn-warning">
                     Book Now Rs.
-                    {amt + tax * slicedArray.map((a) => a?.seats)}
+                    {amt + tax * slicedArray?.map((a) => a?.seats)}
                   </button>
                 </Stack>
               )}
@@ -482,7 +518,7 @@ const MovieTicket = ({
                   flexWrap={"wrap"}
                   justifyContent={"center"}
                 >
-                  {snacks.map((a, i) => (
+                  {snacks?.map((a, i) => (
                     <Box
                       width={350}
                       height={260}
@@ -518,11 +554,11 @@ const MovieTicket = ({
                         alignItems={"center"}
                       >
                         <Typography>&#8377;{a.price}</Typography>
-                        {addedProducts.includes(a.name) &&
-                          snackDetailSelector
-                            ?.map((ab) => ab)
-                            .filter((snack) => snack.snackName === a.name)
-                            .length > 0 ? (
+                        {addedProducts?.includes(a.name) &&
+                        snackDetailSelector
+                          ?.map((ab) => ab)
+                          .filter((snack) => snack.snackName === a.name)
+                          .length > 0 ? (
                           <ButtonGroup
                             variant="contained"
                             aria-label="Basic button group"
@@ -597,7 +633,7 @@ const MovieTicket = ({
               onHide={handleClose}
               backdrop="static"
               keyboard={false}
-            // style={{width:'800px'}}
+              // style={{width:'800px'}}
             >
               <Modal.Header closeButton>
                 <Modal.Title>Let us know More about you!</Modal.Title>

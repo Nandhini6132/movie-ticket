@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, InputAdornment, Paper, Typography } from "@mui/material";
 import PaymentOptions from "./PaymentOptions";
 import MovieDetailComponent from "./MovieDetailComponent";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "./firebase/firebase";
 import MovieTicketPdf from "./components/invoice/MovieTicketPdf";
+import { clearAllDetails } from "./slice/MovieSlice";
 
 const UpiPage = ({
   selectedSeats,
@@ -52,12 +53,19 @@ const UpiPage = ({
   const [bookingSum, setBookingSum] = useState();
   const selector = useSelector((state) => state.allMovie);
   const snackSelector= useSelector(state=>state.allMovie.overAllTotal)
+  const theater= useSelector(state=>state.allMovie.theaterName)
+  const locationSelector= useSelector(state=>state.allMovie.location)
+
+  const dispatch = useDispatch()
+ 
 
   const handleClickOpen = async () => {
     setIsPaymentConfirmed(true);
     setIsDisabled(true);
-    console.log(isPaymentConfirmed);
-    const documentId = `${fbSelector.date}-${fbSelector.id}-${fbSelector.time}`;
+    dispatch(clearAllDetails())
+    navigate('/')
+  
+    const documentId = `${locationSelector}-${theater}-${fbSelector.date}-${fbSelector.id}-${fbSelector.time}`
 
     try {
       const ab = await addDoc(collection(db, `${documentId}`), {
@@ -73,6 +81,9 @@ const UpiPage = ({
         time: selector.time,
         date: selector.date,
         title: selector.movieDetail ? selector.movieDetail.original_title : "",
+        theater:theater,
+        location:locationSelector
+        
       });
 
       const bookingSummary = await addDoc(
@@ -85,6 +96,8 @@ const UpiPage = ({
             ? selector.movieDetail.original_title
             : "",
           seat: comb,
+          theater:theater,
+          location:locationSelector
         }
       );
       setBookingSum(bookingSummary);
